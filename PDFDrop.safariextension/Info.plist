@@ -7,9 +7,9 @@
 	<key>Builder Version</key>
 	<string>8536.28.10</string>
 	<key>CFBundleDisplayName</key>
-	<string>DropPDF</string>
+	<string>PDFDrop</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.MattRajca.safari.DropPDF</string>
+	<string>com.MattRajca.safari.PDFDrop</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
@@ -41,9 +41,9 @@
 				<key>Image</key>
 				<string>BarIcon.png</string>
 				<key>Label</key>
-				<string>DropPDF</string>
+				<string>PDFDrop</string>
 				<key>Palette Label</key>
-				<string>DropPDF</string>
+				<string>PDFDrop</string>
 				<key>Popover</key>
 				<string>dropboxPopover</string>
 				<key>Tool Tip</key>
@@ -71,7 +71,7 @@
 		</dict>
 	</dict>
 	<key>Update Manifest URL</key>
-	<string>http://www.mattrajca.com/assets/DropPDFExtensionUpdates.xml</string>
+	<string>http://www.mattrajca.com/assets/PDFDropExtensionUpdates.xml</string>
 	<key>Website</key>
 	<string>http://mattrajca.com</string>
 </dict>
