@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Send PDF to Dropbox</title>
+	<link rel="stylesheet" href="style.css" type="text/css" />
+	<script src="throbber.js"></script>
+	<script src="dropbox.js"></script>
+	
+	<script type="text/javascript">
+		
+		var client = null;
+		var loadedRefreshToken = false;
+		
+		function validateHandler(event) {
+			if (event.target.identifier === "dropbox") {
+				event.target.disabled = (event.target.browserWindow.activeTab.url.slice(-4) != ".pdf");
+			}
+		}
+		
+		function popoverHandler(event) {
+			if (event.target.identifier === "dropboxPopover") {
+				resetIcon();
+				loadUI();
+			}
+		}
+		
+		function loadUI() {
+			var accessToken = localStorage.getItem('access_token_dropbox');
+			var accessSecret = localStorage.getItem('access_secret_dropbox');
+			
+			if (accessToken != null && accessSecret != null) {
+				client.accessToken = accessToken;
+				client.accessSecret = accessSecret;
+				
+				document.getElementById("login").style.display = "none";
+				document.getElementById("transfer").style.display = "block";
+				
+				loadFolders();
+			}
+			else {
+				document.getElementById("login").style.display = "block";
+				document.getElementById("transfer").style.display = "none";
+				
+				if (loadedRefreshToken)
+					return;
+				
+				document.getElementById("authBtn").className = "button";
+				document.getElementById("doneBtn").className = "button disabled";
+				
+				var message = document.getElementById("message");
+				message.innerHTML = "Please wait...";
+				
+				client.getRequestToken(function() {
+					var link = document.getElementById("authBtn");
+					link.href = "javascript:loadURL('https://www.dropbox.com/1/oauth/authorize?oauth_token=" + client.requestToken + "');";
+					
+					var messageP = document.getElementById("message");
+					messageP.innerHTML = "Sign in with Dropbox, then click Done.";
+					
+					loadedRefreshToken = true;
+				});
+			}
+		}
+		
+		function onLoad() {
+			safari.application.addEventListener("validate", validateHandler, true);
+			safari.application.addEventListener("popover", popoverHandler, true);
+			
+			var loader = new Throbber({ size: 32, color: "black", strokewidth: 2, lines: 10 });
+			loader.appendTo(document.getElementById("spinner"));
+			loader.start();
+			
+			client = new Dropbox("", "");
+		}
+		
+		function loadURL(href) {
+			document.getElementById("authBtn").className = "button disabled";
+			document.getElementById("doneBtn").className = "button";
+			
+			safari.application.activeBrowserWindow.openTab();
+			safari.application.activeBrowserWindow.activeTab.url = href;
+		}
+		
+		function loadAccessToken() {
+			client.getAccessToken(function() {
+				localStorage.setItem("access_token_dropbox", client.accessToken);
+				localStorage.setItem("access_secret_dropbox", client.accessSecret);
+				
+				document.getElementById("login").style.display = "none";
+				document.getElementById("transfer").style.display = "block";
+				
+				loadFolders();
+			},
+			function(error) {
+				var message = document.getElementById("message");
+				message.innerHTML = "Could not load an access token.";
+			});
+		}
+		
+		function loadFolders() {
+			document.getElementById("folders").options.length = 0;
+			
+			client.getMetadata("/", function(data) {
+				
+				var folders = document.getElementById("folders");
+				
+				var root = document.createElement("option");
+				root.text = "/";
+				folders.add(root);
+				
+				for (var n = 0; n < data.contents.length; n++) {
+					var item = data.contents[n];
+					
+					if (item.is_dir == true) {
+						var option = document.createElement("option");
+						option.text = item.path;
+						folders.add(option);
+					}
+				}
+				
+			});
+		}
+		
+		function upload() {
+			var url = safari.application.activeBrowserWindow.activeTab.url;
+			
+			document.getElementById("spinner").style.display = "block";
+			document.getElementById("box2").style.display = "none";
+			
+			document.getElementById("folders").style.display = "none";
+			document.getElementById("uploadButton").style.display = "none";
+			
+			document.getElementById("label").innerHTML = "Uploading...";
+			
+			var loc = document.createElement("a");
+			loc.href = url;
+			
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', url, true);
+			xhr.responseType = 'blob';
+			
+			var folders = document.getElementById("folders");
+			var folderPath = folders.options[folders.selectedIndex].text;
+			
+			if (folderPath != "/") {
+				folderPath += "/";
+			}
+			
+			var comps = loc.pathname.split('/');
+			var path = folderPath + comps[comps.length-1];
+			
+			xhr.onload = function(e) {
+				if (e.target.status == 200) {
+					var result = e.target.response;
+					
+					client.put(path, result, function() {
+						var visual2 = document.getElementById("spinner");
+						visual2.style.display = "none";
+						
+						var box2 = document.getElementById("box2");
+						box2.style.display = "block";
+						box2.className = "icon done";
+						
+						document.getElementById("folders").style.display = "block";
+						document.getElementById("uploadButton").style.display = "block";
+						
+						document.getElementById("label").innerHTML = "Choose your destination folder.";
+					});
+				}
+				else {
+					console.log("error fetching doc");
+				}
+			};
+			
+			xhr.send();
+		}
+		
+		function resetIcon() {
+			var box2 = document.getElementById("box2");
+			box2.className = "icon box";
+		}
+		
+		function signOut() {
+			loadedRefreshToken = false;
+			
+			localStorage.removeItem("access_token_dropbox");
+			localStorage.removeItem("access_secret_dropbox");
+			
+			loadUI();
+		}
+		
+	</script>
+</head>
+
+<body onload="onLoad();">
+	<div id="login">
+		<img class="icon box" width="64" height="64" />
+		
+		<p id="message"></p>
+		
+		<a class="button" id="authBtn">Authenticate with Dropbox</a>
+		<a class="button" id="doneBtn" href="javascript:loadAccessToken();">Done</a>
+	</div>
+	
+	<div id="transfer">
+		<img class="icon box" id="box2" width="64" height="64" />
+		<div id="spinner"></div>
+		
+		<p id="label">Choose your destination folder.</p>
+		<select id="folders" onchange="resetIcon();"></select>
+		
+		<a class="button noMargin" id="uploadButton" href="javascript:upload();">Upload</a>
+		<a class="signOut" href="javascript:signOut();">Sign out</a>
+	</div>
+</body>
+</html>

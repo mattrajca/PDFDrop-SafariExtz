@@ -1,0 +1,105 @@
+body {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	margin: 20px;
+	overflow: hidden;
+	cursor: default;
+	-webkit-user-select: none;
+}
+div#login {
+	display: none;
+}
+div#transfer {
+	display: none;
+}
+p {
+	text-align: center;
+	font-size: 13px;
+	margin-bottom: 16px;
+}
+a.button {
+	background-image: -webkit-linear-gradient(#7cb8ef 0%, #2f88d5 100%);
+	display: block;
+	padding: 8px;
+	width: 200px;
+	border: 1px solid #40639e;
+	color: white;
+	font-size: 14px;
+	text-align: center;
+	text-decoration: none;
+	text-shadow: 0 -1px 1px black;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 10px;
+	-webkit-border-radius: 6px;
+}
+a.button:hover {
+	background-image: -webkit-linear-gradient(#69a7e0 0%, #2376be 100%);
+	border-color: #40639e;
+}
+a.button.disabled {
+	background-image: -webkit-linear-gradient(#cdcdcd 0%, #9d9d9d 100%);
+	border-color: #666666;
+}
+a.button.disabled:hover {
+	background-image: -webkit-linear-gradient(#cdcdcd 0%, #9d9d9d 100%);
+	border-color: #666666;
+}
+div#spinner {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 32px;
+	margin-bottom: 33px;
+	width: 32px;
+	height: 32px;
+	display: none;
+}
+select {
+	background-color: #e4e4e4;
+	display: block;
+	width: 218px;
+	height: 24px;
+	border: 1px solid #7d7d7d;
+	font-size: 14px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 0;
+	margin-bottom: 10px;
+	-webkit-border-radius: 6px;
+}
+a.noMargin {
+	margin-bottom: 0;
+}
+a.signOut {
+	display: block;
+	position: absolute;
+	bottom: 10px;
+	left: 50%;
+	width: 60px;
+	margin-left: -30px;
+	font-size: 10px;
+	color: black;
+	text-align: center;
+	text-decoration: none;
+}
+a.signOut:hover {
+	text-decoration: underline;
+}
+img.icon {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+img.icon.box {
+	content: url('Box.png');
+}
+img.icon.done {
+	content: url('Checkmark.png');
+}
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+	img.icon.box {
+		content: url('Box_2x.png');
+	}
+	img.icon.done {
+		content: url('Checkmark_2x.png');
+	}
+}
